@@ -1,6 +1,7 @@
     // Inicializace soketové komunikace
 const socket = io(); 
 let name;  // Proměnná pro uchování jména uživatele
+let lastTurn = document.getElementById("lastTurn");
 
 // Skrytí určitých částí HTML při načítání stránky
 document.getElementById("loading").style.display = "none";
@@ -9,6 +10,7 @@ document.getElementById("userCont").style.display = "none";
 document.getElementById("oppNameCont").style.display = "none";
 document.getElementById("valueCont").style.display = "none";
 document.getElementById("whosTurn").style.display = "none";
+//document.getElementById("lastTurn").style.display = "none";
 
 // Přidání události kliknutí na tlačítko 'find'
 document.getElementById('find').addEventListener("click", function () {
@@ -45,24 +47,32 @@ socket.on("find", (e) => {
 
     let oppName;
     let value;
+    
 
     // Vyhledání objektu hráče podle jména
     const foundObject = allPlayersArray.find(obj => obj.p1.p1name == `${name}` || obj.p2.p2name == `${name}`);
     foundObject.p1.p1name == `${name}` ? oppName = foundObject.p2.p2name : oppName = foundObject.p1.p1name;
     foundObject.p1.p1name == `${name}` ? value = foundObject.p1.p1value : value = foundObject.p2.p2value;
-
+    
     // Nastavení jména soupeře a hodnoty v HTML
     document.getElementById("oppName").innerText = oppName;
     document.getElementById("value").innerText = value;
+    
 });
 
 // Přidání události kliknutí na tlačítka herního pole
 document.querySelectorAll(".btn").forEach(e => {
     e.addEventListener("click", function () {
+        
         let value = document.getElementById("value").innerText;  // Získání hodnoty (X nebo O)
+        if(lastTurn.innerText==''|| lastTurn.innerText!= value){
         e.innerText = value;  // Nastavení hodnoty do kliknutého tlačítka
+        console.log(value);
+        
+
 
         socket.emit("playing", { value: value, id: e.id, name: name });  // Odeslání události "playing" na server
+        }
     })
 });
 
@@ -72,12 +82,14 @@ socket.on("playing", (e) => {
 
     p1id = foundObject.p1.p1move;
     p2id = foundObject.p2.p2move;
-
+    
     // Nastavení textu "X's Turn" nebo "O's Turn" podle aktuálního stavu hry
     if ((foundObject.sum) % 2 == 0) {
         document.getElementById("whosTurn").innerText = "O's Turn";
+        lastTurn.innerText="X";
     } else {
         document.getElementById("whosTurn").innerText = "X's Turn";
+        lastTurn.innerText="O";
     }
 
     // Aktualizace herního pole podle tahů hráčů
