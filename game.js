@@ -2,7 +2,7 @@
 const socket = io(); 
 let name;  // Proměnná pro uchování jména uživatele
 let lastTurn = document.getElementById("lastTurn");
-
+lastTurn.innerText="O";
 // Skrytí určitých částí HTML při načítání stránky
 document.getElementById("loading").style.display = "none";
 document.getElementById("bigcont").style.display = "none";
